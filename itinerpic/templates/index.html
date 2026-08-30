@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ItinerPic helps travelers create custom trip plans, itineraries, and memorable travel experiences."
+    />
+    <title>{{ brand }} | Travel planning, beautifully</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <div class="brand-mark">I</div>
+          <span>{{ brand }}</span>
+        </div>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/plan">Planner</a>
+          <a href="#trip-list">My trips</a>
+          <a href="#features">Features</a>
+        </nav>
+        <a class="button button-ghost" href="/plan">Create plan</a>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="hero-copy">
+            <span class="eyebrow">Your trip, your way</span>
+            <h1>{{ tagline }}</h1>
+            <p>{{ subtitle }}</p>
+            <div class="cta-row">
+              <a class="button button-primary" href="/plan">Build my itinerary</a>
+              <a class="button button-secondary" href="#trip-list">View my trips</a>
+            </div>
+            <ul class="highlight-list" aria-label="Core features">
+              {% for item in highlights %}
+              <li>{{ item }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <div class="hero-panel" aria-label="Trip overview">
+            <div class="panel-head">
+              <span class="status-dot"></span>
+              <span>Trip overview</span>
+            </div>
+            <div class="panel-body">
+              {% if custom_itineraries %}
+                <h2>{{ trip_card.title }}</h2>
+                <p class="muted">{{ trip_card.meta }}</p>
+
+                <div class="mini-progress">
+                  <div class="progress-track">
+                    <span class="progress-fill"></span>
+                  </div>
+                  <span>72% planned</span>
+                </div>
+
+                <div class="metric-grid">
+                  {% for item in trip_card.snapshot %}
+                  <div class="metric-card">
+                    <span>{{ item.label }}</span>
+                    <strong>{{ item.value }}</strong>
+                  </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <h2>Your first trip</h2>
+                <p class="muted">Add your itinerary details to start planning.</p>
+                <div class="mini-progress">
+                  <div class="progress-track">
+                    <span class="progress-fill" style="width: 0%"></span>
+                  </div>
+                  <span>0% planned</span>
+                </div>
+                <div class="metric-grid">
+                  <div class="metric-card">
+                    <span>Budget</span>
+                    <strong>₹0</strong>
+                  </div>
+                  <div class="metric-card">
+                    <span>Style</span>
+                    <strong>Custom</strong>
+                  </div>
+                  <div class="metric-card">
+                    <span>Plan</span>
+                    <strong>New</strong>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </section>
+
+        <div class="stats-row" aria-label="Key stats">
+          <div class="stat-box">
+            <strong>5k+</strong>
+            <span>Trips imagined</span>
+          </div>
+          <div class="stat-box">
+            <strong>120+</strong>
+            <span>Destinations mapped</span>
+          </div>
+          <div class="stat-box">
+            <strong>4.9/5</strong>
+            <span>Traveler experience</span>
+          </div>
+        </div>
+
+        <section class="trip-list" id="trip-list">
+          <div class="section-heading">
+            <span class="eyebrow">My itineraries</span>
+            <h2>Your saved trip ideas.</h2>
+          </div>
+
+          {% if custom_itineraries %}
+            <div class="itinerary-grid">
+              {% for trip in custom_itineraries %}
+              <article class="itinerary-card">
+                <div class="itinerary-header">
+                  <h3>{{ trip.title }}</h3>
+                  <span>{{ trip.date_range }}</span>
+                </div>
+                <p class="destination-name">{{ trip.destination }}</p>
+                <div class="trip-meta">
+                  <span>{{ trip.budget }}</span>
+                  <span>{{ trip.travelers }}</span>
+                </div>
+
+                {% if trip.stops %}
+                  <div class="stop-list">
+                    {% for stop in trip.stops %}
+                    <div class="mini-stop">
+                      <strong>{{ stop.name }}</strong>
+                      <small>{{ stop.day }} • {{ stop.lat }}, {{ stop.lng }}</small>
+                    </div>
+                    {% endfor %}
+                  </div>
+
+                  <div class="map-links">
+                    {% if trip.map_links.google %}
+                    <a href="{{ trip.map_links.google }}" target="_blank" rel="noreferrer">Google Maps</a>
+                    {% endif %}
+                    {% if trip.map_links.apple %}
+                    <a href="{{ trip.map_links.apple }}" target="_blank" rel="noreferrer">Apple Maps</a>
+                    {% endif %}
+                    {% if trip.map_links.mappls %}
+                    <a href="{{ trip.map_links.mappls }}" target="_blank" rel="noreferrer">Mappls</a>
+                    {% endif %}
+                  </div>
+                {% endif %}
+
+                <p>{{ trip.notes }}</p>
+              </article>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="empty-state">
+              <p>No custom itinerary yet. Add your first trip plan to start building.</p>
+            </div>
+          {% endif %}
+        </section>
+
+        <section class="features" id="features">
+          <div class="section-heading">
+            <span class="eyebrow">Built for better travel</span>
+            <h2>Everything your trip needs, in one place.</h2>
+          </div>
+
+          <div class="feature-grid">
+            <article class="feature-card">
+              <div class="icon">✦</div>
+              <h3>Custom route planning</h3>
+              <p>Design your own trip around your interests, pace, and travel preferences.</p>
+            </article>
+            <article class="feature-card">
+              <div class="icon">✧</div>
+              <h3>Flexible day planning</h3>
+              <p>Adjust each day based on your schedule, energy, and mood while you travel.</p>
+            </article>
+            <article class="feature-card">
+              <div class="icon">◌</div>
+              <h3>Trip memory notes</h3>
+              <p>Keep special restaurants, wins, and moments in one place for later.</p>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div class="brand-wrap">
+          <div class="brand-mark">I</div>
+          <span>{{ brand }}</span>
+        </div>
+        <p>Designed for modern travelers and memorable journeys.</p>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Build a custom itinerary with your own route stops, notes, and map links."
+    />
+    <title>{{ brand }} | Build my itinerary</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <div class="brand-mark">I</div>
+          <span>{{ brand }}</span>
+        </div>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/">Home</a>
+          <a href="/plan">Planner</a>
+          <a href="/#trip-list">My trips</a>
+        </nav>
+        <a class="button button-ghost" href="/">Back home</a>
+      </header>
+
+      <main>
+        <div class="stats-row" aria-label="Planner overview">
+          <div class="stat-box">
+            <strong>Custom</strong>
+            <span>Route design</span>
+          </div>
+          <div class="stat-box">
+            <strong>Live</strong>
+            <span>Map-ready stops</span>
+          </div>
+          <div class="stat-box">
+            <strong>₹</strong>
+            <span>Budget-first planning</span>
+          </div>
+        </div>
+
+        <section class="planner planner-page" id="planner">
+          <div class="section-heading narrow">
+            <span class="eyebrow">Custom itinerary</span>
+            <h2>Create a trip plan that matches your own style.</h2>
+          </div>
+
+          <div class="planner-grid">
+            <form class="planner-form" method="post">
+              <label>
+                <span>Trip name</span>
+                <input type="text" name="title" placeholder="Lake & castle getaway" required />
+              </label>
+              <label>
+                <span>Destination</span>
+                <input type="text" name="destination" placeholder="Kyiv, Croatia, Tokyo..." required />
+              </label>
+              <div class="field-row">
+                <label>
+                  <span>Dates</span>
+                  <input type="text" name="date_range" placeholder="12-18 Aug 2027" />
+                </label>
+                <label>
+                  <span>Budget</span>
+                  <input type="text" name="budget" placeholder="₹18,000" />
+                </label>
+              </div>
+              <label>
+                <span>Travelers</span>
+                <input type="text" name="travelers" placeholder="2 adults" />
+              </label>
+              <label>
+                <span>Notes</span>
+                <textarea name="notes" rows="4" placeholder="Add must-visit places, restaurant ideas, rest days, flight timing, vibe, or themes."></textarea>
+              </label>
+
+              <div class="stop-builder" id="stop-builder">
+                <div class="stop-builder-header">
+                  <h3>Route stops</h3>
+                  <button type="button" class="button button-secondary small-button" id="add-stop-btn">+ Add location</button>
+                </div>
+
+                <div class="stop-entry" data-stop-entry>
+                  <div class="stop-row">
+                    <input type="text" name="stop_name" placeholder="Place name" />
+                    <input type="text" name="stop_lat" placeholder="Lat" />
+                    <input type="text" name="stop_lng" placeholder="Lng" />
+                    <input type="text" name="stop_day" placeholder="Day" />
+                  </div>
+                  <div class="stop-row single">
+                    <textarea name="stop_notes" rows="2" placeholder="Visit notes for this stop"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="button button-primary">Add itinerary</button>
+
+              <template id="stop-template">
+                <div class="stop-entry" data-stop-entry>
+                  <div class="stop-entry-actions">
+                    <span>Location</span>
+                    <button type="button" class="remove-stop-btn" data-remove-stop>Remove</button>
+                  </div>
+                  <div class="stop-row">
+                    <input type="text" name="stop_name" placeholder="Place name" />
+                    <input type="text" name="stop_lat" placeholder="Lat" />
+                    <input type="text" name="stop_lng" placeholder="Lng" />
+                    <input type="text" name="stop_day" placeholder="Day" />
+                  </div>
+                  <div class="stop-row single">
+                    <textarea name="stop_notes" rows="2" placeholder="Visit notes for this stop"></textarea>
+                  </div>
+                </div>
+              </template>
+
+              <script>
+                const stopBuilder = document.getElementById('stop-builder');
+                const addStopBtn = document.getElementById('add-stop-btn');
+                const stopTemplate = document.getElementById('stop-template');
+
+                addStopBtn.addEventListener('click', () => {
+                  const clone = stopTemplate.content.firstElementChild.cloneNode(true);
+                  stopBuilder.appendChild(clone);
+                });
+
+                stopBuilder.addEventListener('click', (event) => {
+                  const removeButton = event.target.closest('[data-remove-stop]');
+                  if (!removeButton) return;
+                  const entry = removeButton.closest('[data-stop-entry]');
+                  if (entry && stopBuilder.querySelectorAll('[data-stop-entry]').length > 1) {
+                    entry.remove();
+                  }
+                });
+              </script>
+            </form>
+
+            <div class="planner-summary">
+              <div class="summary-card">
+                <span class="eyebrow">Trip snapshot</span>
+                <h3>Your plan starts with a vision.</h3>
+                <p>Build your own route, pacing, and must-see moments instead of relying on generic online recommendations.</p>
+              </div>
+              <ul class="check-list">
+                <li>Pick your own cities and stops</li>
+                <li>Set your budget and travel pace</li>
+                <li>Capture notes for food, culture, and rest</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="trip-list" id="trip-list">
+          <div class="section-heading">
+            <span class="eyebrow">My itineraries</span>
+            <h2>Your saved trip ideas.</h2>
+          </div>
+
+          {% if custom_itineraries %}
+            <div class="itinerary-grid">
+              {% for trip in custom_itineraries %}
+              <article class="itinerary-card">
+                <div class="itinerary-header">
+                  <h3>{{ trip.title }}</h3>
+                  <span>{{ trip.date_range }}</span>
+                </div>
+                <p class="destination-name">{{ trip.destination }}</p>
+                <div class="trip-meta">
+                  <span>{{ trip.budget }}</span>
+                  <span>{{ trip.travelers }}</span>
+                </div>
+
+                {% if trip.stops %}
+                  <div class="stop-list">
+                    {% for stop in trip.stops %}
+                    <div class="mini-stop">
+                      <strong>{{ stop.name }}</strong>
+                      <small>{{ stop.day }} • {{ stop.lat }}, {{ stop.lng }}</small>
+                    </div>
+                    {% endfor %}
+                  </div>
+
+                  <div class="map-links">
+                    {% if trip.map_links.google %}
+                    <a href="{{ trip.map_links.google }}" target="_blank" rel="noreferrer">Google Maps</a>
+                    {% endif %}
+                    {% if trip.map_links.apple %}
+                    <a href="{{ trip.map_links.apple }}" target="_blank" rel="noreferrer">Apple Maps</a>
+                    {% endif %}
+                    {% if trip.map_links.mappls %}
+                    <a href="{{ trip.map_links.mappls }}" target="_blank" rel="noreferrer">Mappls</a>
+                    {% endif %}
+                  </div>
+                {% endif %}
+
+                <p>{{ trip.notes }}</p>
+              </article>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="empty-state card-surface">
+              <h3>No itineraries yet</h3>
+              <p>Start building your first custom travel plan from the planner above.</p>
+            </div>
+          {% endif %}
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
